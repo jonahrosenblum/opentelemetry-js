@@ -13,16 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Exemplar } from './Exemplar';
-
-export interface ExemplarSampler {
-  _k: number;
-
-  sample(exemplar: Exemplar): void;
-
-  sampleSet(): Exemplar[];
-
-  merge(set1: Exemplar[], set2: Exemplar[]): Exemplar[];
-
-  reset(): void;
-}

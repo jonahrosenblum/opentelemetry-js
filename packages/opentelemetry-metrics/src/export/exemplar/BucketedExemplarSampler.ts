@@ -15,34 +15,31 @@
  */
 import { Exemplar } from './Exemplar';
 import { ExemplarSampler } from './ExemplarSampler';
+import { RandomExemplarSampler } from './RandomExemplarSampler';
 
-export class RandomExemplarSampler implements ExemplarSampler {
+export class BucketedExemplarSampler implements ExemplarSampler {
   _k: number;
-  _sampleSet: Exemplar[];
-  _randCount: number;
+  private _sampleSet: RandomExemplarSampler[];
+  _boundaries: number[];
 
-  constructor(k: number) {
+  constructor(k: number, boundaries: number[] = []) {
     this._k = k;
-    this._randCount = 0;
-    this._sampleSet = [];
+    this._boundaries = boundaries;
+    this._sampleSet = boundaries.map(_ => new RandomExemplarSampler(k));
   }
 
-  sample(exemplar: Exemplar): void {
-    this._randCount += 1;
-
-    if (this._sampleSet.length < this._k) {
-      this._sampleSet.push(exemplar);
+  sample(exemplar: Exemplar, bucketIndex?: number): void {
+    if (bucketIndex === undefined) {
+      return;
     }
-
-    const replaceIndex: number = Math.floor(Math.random() * this._randCount);
-
-    if (replaceIndex < this._k) {
-      this._sampleSet[replaceIndex] = exemplar;
-    }
+    this._sampleSet[bucketIndex].sample(exemplar);
   }
 
   sampleSet(): Exemplar[] {
-    return this._sampleSet;
+    return [].concat.apply(
+      this._sampleSet.map(sample => sample.sampleSet()),
+      []
+    );
   }
 
   merge(set1: Exemplar[], set2: Exemplar[]): Exemplar[] {
@@ -50,7 +47,8 @@ export class RandomExemplarSampler implements ExemplarSampler {
   }
 
   reset(): void {
-    this._randCount = 0;
-    this._sampleSet = [];
+    this._sampleSet.forEach(sampler => {
+      sampler.reset();
+    });
   }
 }
