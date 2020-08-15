@@ -13,3 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { ExemplarSampler } from './ExemplarSampler';
+import { ExemplarManagerConfig } from '../types';
+
+export class ExemplarManager {
+    private _exemplarCount: number;
+    private _recordExemplars: boolean;
+    private _semanticExemplar: ExemplarSampler;
+    private _config: ExemplarManagerConfig;
+
+    constructor(config: ExemplarManagerConfig) {
+        this._exemplarCount = config.exemplarCount | 0;
+        this._recordExemplars = this._exemplarCount > 0;
+        this._semanticExemplar = config.semanticExemplar;
+
+    }
+}

@@ -17,6 +17,7 @@
 import { ValueType, HrTime, Labels } from '@opentelemetry/api';
 import { ExportResult, InstrumentationLibrary } from '@opentelemetry/core';
 import { Resource } from '@opentelemetry/resources';
+import { ExemplarSampler } from './exemplar/ExemplarSampler';
 
 /** The kind of metric. */
 export enum MetricKind {
@@ -177,4 +178,11 @@ export type Aggregator =
 export interface Point<T extends PointValueType> {
   value: T;
   timestamp: HrTime;
+}
+
+export interface ExemplarManagerConfig {
+  exemplarCount: number;
+
+  semanticExemplar: ExemplarSampler;
+
 }

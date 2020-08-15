@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import { Point, AggregatorKind, DistributionAggregatorType } from '../types';
+import { Point, AggregatorKind, DistributionAggregatorType, Distribution } from '../types';
 import { HrTime } from '@opentelemetry/api';
 import { hrTime } from '@opentelemetry/core';
-import { Distribution } from '../types';
 
 /**
  * Basic aggregator keeping all raw values (events, sum, max, last and min).
