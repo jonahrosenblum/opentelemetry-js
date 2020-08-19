@@ -25,7 +25,7 @@ export class BucketedExemplarSampler implements ExemplarSampler {
   constructor(k: number, boundaries: number[] = []) {
     this._k = k;
     this._boundaries = boundaries;
-    this._sampleSet = boundaries.map(_ => new RandomExemplarSampler(k));
+    this._sampleSet = boundaries.map(_ => new RandomExemplarSampler(k)).concat([new RandomExemplarSampler(k)]);
   }
 
   sample(exemplar: Exemplar, bucketIndex?: number): void {
@@ -36,10 +36,8 @@ export class BucketedExemplarSampler implements ExemplarSampler {
   }
 
   sampleSet(): Exemplar[] {
-    return [].concat.apply(
-      this._sampleSet.map(sample => sample.sampleSet()),
-      []
-    );
+    // flatten an array of arrays into a single array
+    return Array.prototype.concat.apply([], this._sampleSet.map(sample => sample.sampleSet()));
   }
 
   merge(set1: Exemplar[], set2: Exemplar[]): Exemplar[] {

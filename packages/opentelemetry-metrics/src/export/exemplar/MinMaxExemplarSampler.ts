@@ -20,8 +20,9 @@ export class MinMaxExemplarSampler implements ExemplarSampler {
   _k: number;
   _sampleSet: Exemplar[];
 
-  constructor(k: number) {
-    this._k = k;
+  constructor() {
+    // k must always be 2
+    this._k = 2;
     this._sampleSet = [];
   }
 

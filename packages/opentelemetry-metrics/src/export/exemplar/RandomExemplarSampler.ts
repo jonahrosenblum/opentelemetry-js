@@ -32,6 +32,7 @@ export class RandomExemplarSampler implements ExemplarSampler {
 
     if (this._sampleSet.length < this._k) {
       this._sampleSet.push(exemplar);
+      return;
     }
 
     const replaceIndex: number = Math.floor(Math.random() * this._randCount);
