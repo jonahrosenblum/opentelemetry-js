@@ -48,8 +48,17 @@ class TestProcessor implements SpanProcessor {
 }
 
 describe('MultiSpanProcessor', () => {
+<<<<<<< HEAD
   afterEach(() => {
     _cleanupGlobalShutdownListeners();
+=======
+  let removeEvent: Function | undefined;
+  afterEach(() => {
+    if (removeEvent) {
+      removeEvent();
+      removeEvent = undefined;
+    }
+>>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
   });
 
   it('should handle empty span processor', () => {
@@ -114,7 +123,7 @@ describe('MultiSpanProcessor', () => {
     assert.strictEqual(processor1.spans.length, 1);
     assert.strictEqual(processor1.spans.length, processor2.spans.length);
 
-    notifyOnGlobalShutdown(() => {
+    removeEvent = notifyOnGlobalShutdown(() => {
       assert.strictEqual(processor1.spans.length, 0);
       assert.strictEqual(processor1.spans.length, processor2.spans.length);
     });

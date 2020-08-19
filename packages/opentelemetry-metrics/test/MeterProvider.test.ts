@@ -23,15 +23,19 @@ import {
   _invokeGlobalShutdown,
 } from '@opentelemetry/core';
 
-function _cleanupGlobalShutdownListeners() {
-  if (typeof window === 'undefined') {
-    process.removeAllListeners('SIGTERM');
-  }
-}
-
 describe('MeterProvider', () => {
+  let removeEvent: Function | undefined;
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+
   afterEach(() => {
-    _cleanupGlobalShutdownListeners();
+    if (removeEvent) {
+      removeEvent();
+      removeEvent = undefined;
+    }
   });
 
   describe('constructor', () => {
@@ -95,6 +99,26 @@ describe('MeterProvider', () => {
         interval: Math.pow(2, 31) - 1,
         gracefulShutdown: true,
       });
+      const shutdownStub1 = sandbox.stub(
+        meterProvider.getMeter('meter1'),
+        'shutdown'
+      );
+      const shutdownStub2 = sandbox.stub(
+        meterProvider.getMeter('meter2'),
+        'shutdown'
+      );
+      removeEvent = notifyOnGlobalShutdown(() => {
+        sinon.assert.calledOnce(shutdownStub1);
+        sinon.assert.calledOnce(shutdownStub2);
+      });
+      _invokeGlobalShutdown();
+    });
+
+    it('should call shutdown when manually invoked', () => {
+      const meterProvider = new MeterProvider({
+        interval: Math.pow(2, 31) - 1,
+        gracefulShutdown: true,
+      });
       const sandbox = sinon.createSandbox();
       const shutdownStub1 = sandbox.stub(
         meterProvider.getMeter('meter1'),
@@ -104,12 +128,10 @@ describe('MeterProvider', () => {
         meterProvider.getMeter('meter2'),
         'shutdown'
       );
-      notifyOnGlobalShutdown(() => {
+      meterProvider.shutdown(() => {
         sinon.assert.calledOnce(shutdownStub1);
         sinon.assert.calledOnce(shutdownStub2);
-        sandbox.restore();
       });
-      _invokeGlobalShutdown();
     });
 
     it('should not trigger shutdown if graceful shutdown is turned off', () => {
@@ -117,14 +139,16 @@ describe('MeterProvider', () => {
         interval: Math.pow(2, 31) - 1,
         gracefulShutdown: false,
       });
+<<<<<<< HEAD
       const sandbox = sinon.createSandbox();
+=======
+>>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
       const shutdownStub = sandbox.stub(
         meterProvider.getMeter('meter1'),
         'shutdown'
       );
-      notifyOnGlobalShutdown(() => {
+      removeEvent = notifyOnGlobalShutdown(() => {
         sinon.assert.notCalled(shutdownStub);
-        sandbox.restore();
       });
       _invokeGlobalShutdown();
     });

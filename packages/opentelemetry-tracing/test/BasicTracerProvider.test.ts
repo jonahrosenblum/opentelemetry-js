@@ -40,6 +40,7 @@ function _cleanupGlobalShutdownListeners() {
 
 describe('BasicTracerProvider', () => {
   let sandbox: sinon.SinonSandbox;
+  let removeEvent: Function | undefined;
 
   beforeEach(() => {
     context.disable();
@@ -48,7 +49,10 @@ describe('BasicTracerProvider', () => {
 
   afterEach(() => {
     sandbox.restore();
-    _cleanupGlobalShutdownListeners();
+    if (removeEvent) {
+      removeEvent();
+      removeEvent = undefined;
+    }
   });
 
   describe('constructor', () => {
@@ -377,10 +381,20 @@ describe('BasicTracerProvider', () => {
         tracerProvider.getActiveSpanProcessor(),
         'shutdown'
       );
-      notifyOnGlobalShutdown(() => {
+      removeEvent = notifyOnGlobalShutdown(() => {
         sinon.assert.calledOnce(shutdownStub);
       });
       _invokeGlobalShutdown();
+    });
+
+    it('should trigger shutdown when manually invoked', () => {
+      const tracerProvider = new BasicTracerProvider();
+      const shutdownStub = sandbox.stub(
+        tracerProvider.getActiveSpanProcessor(),
+        'shutdown'
+      );
+      tracerProvider.shutdown();
+      sinon.assert.calledOnce(shutdownStub);
     });
 
     it('should not trigger shutdown if graceful shutdown is turned off', () => {
@@ -392,7 +406,7 @@ describe('BasicTracerProvider', () => {
         tracerProvider.getActiveSpanProcessor(),
         'shutdown'
       );
-      notifyOnGlobalShutdown(() => {
+      removeEvent = notifyOnGlobalShutdown(() => {
         sinon.assert.notCalled(shutdownStub);
       });
       _invokeGlobalShutdown();

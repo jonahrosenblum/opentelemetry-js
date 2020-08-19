@@ -42,6 +42,7 @@ const mockedTimeMS = 1586347902211000;
 
 describe('PrometheusExporter', () => {
   let toPoint: () => Point<Sum>;
+  let removeEvent: Function | undefined;
   before(() => {
     toPoint = SumAggregator.prototype.toPoint;
     SumAggregator.prototype.toPoint = function (): Point<Sum> {
@@ -213,6 +214,10 @@ describe('PrometheusExporter', () => {
     afterEach(done => {
       _cleanupGlobalShutdownListeners();
       exporter.shutdown(done);
+      if (removeEvent) {
+        removeEvent();
+        removeEvent = undefined;
+      }
     });
 
     it('should export a count aggregation', done => {
@@ -347,7 +352,11 @@ describe('PrometheusExporter', () => {
       counter.bind({ counterKey1: 'labelValue2' }).add(20);
       counter.bind({ counterKey1: 'labelValue3' }).add(30);
 
+<<<<<<< HEAD
       notifyOnGlobalShutdown(() => {
+=======
+      removeEvent = notifyOnGlobalShutdown(() => {
+>>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
         http
           .get('http://localhost:9464/metrics', res => {
             res.on('data', chunk => {
@@ -491,6 +500,122 @@ describe('PrometheusExporter', () => {
                   'counter{key1="labelValue1"} 20',
                   '',
                 ]);
+
+                done();
+              });
+            })
+            .on('error', errorHandler(done));
+        });
+      });
+    });
+
+    it('should export a SumObserver as a counter', done => {
+      function getValue() {
+        return 20;
+      }
+
+      meter.createSumObserver(
+        'sum_observer',
+        {
+          description: 'a test description',
+        },
+        (observerResult: ObserverResult) => {
+          observerResult.observe(getValue(), {
+            key1: 'labelValue1',
+          });
+        }
+      );
+
+      meter.collect().then(() => {
+        exporter.export(meter.getBatcher().checkPointSet(), () => {
+          http
+            .get('http://localhost:9464/metrics', res => {
+              res.on('data', chunk => {
+                const body = chunk.toString();
+                const lines = body.split('\n');
+
+                assert.deepStrictEqual(lines, [
+                  '# HELP sum_observer a test description',
+                  '# TYPE sum_observer counter',
+                  `sum_observer{key1="labelValue1"} 20 ${mockedTimeMS}`,
+                  '',
+                ]);
+              });
+
+              done();
+            })
+            .on('error', errorHandler(done));
+        });
+      });
+    });
+
+    it('should export a UpDownSumObserver as a gauge', done => {
+      function getValue() {
+        return 20;
+      }
+
+      meter.createUpDownSumObserver(
+        'updown_observer',
+        {
+          description: 'a test description',
+        },
+        (observerResult: ObserverResult) => {
+          observerResult.observe(getValue(), {
+            key1: 'labelValue1',
+          });
+        }
+      );
+
+      meter.collect().then(() => {
+        exporter.export(meter.getBatcher().checkPointSet(), () => {
+          http
+            .get('http://localhost:9464/metrics', res => {
+              res.on('data', chunk => {
+                const body = chunk.toString();
+                const lines = body.split('\n');
+
+                assert.deepStrictEqual(lines, [
+                  '# HELP updown_observer a test description',
+                  '# TYPE updown_observer gauge',
+                  'updown_observer{key1="labelValue1"} 20',
+                  '',
+                ]);
+              });
+
+              done();
+            })
+            .on('error', errorHandler(done));
+        });
+      });
+    });
+
+    it('should export a ValueRecorder as a gauge', done => {
+      const valueRecorder = meter.createValueRecorder('value_recorder', {
+        description: 'a test description',
+      });
+
+      valueRecorder.bind({ key1: 'labelValue1' }).record(20);
+
+      meter.collect().then(() => {
+        exporter.export(meter.getBatcher().checkPointSet(), () => {
+          http
+            .get('http://localhost:9464/metrics', res => {
+              res.on('data', chunk => {
+                const body = chunk.toString();
+                const lines = body.split('\n');
+
+                assert.strictEqual(
+                  lines[0],
+                  '# HELP value_recorder a test description'
+                );
+                assert.strictEqual(lines[1], '# TYPE value_recorder gauge');
+
+                const line3 = lines[2].split(' ');
+                assert.strictEqual(
+                  line3[0],
+                  'value_recorder{key1="labelValue1"}'
+                );
+                assert.equal(line3[1], 20);
 
                 done();
               });
