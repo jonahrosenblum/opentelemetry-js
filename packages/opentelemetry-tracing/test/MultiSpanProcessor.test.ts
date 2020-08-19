@@ -48,17 +48,12 @@ class TestProcessor implements SpanProcessor {
 }
 
 describe('MultiSpanProcessor', () => {
-<<<<<<< HEAD
-  afterEach(() => {
-    _cleanupGlobalShutdownListeners();
-=======
   let removeEvent: Function | undefined;
   afterEach(() => {
     if (removeEvent) {
       removeEvent();
       removeEvent = undefined;
     }
->>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
   });
 
   it('should handle empty span processor', () => {

@@ -139,10 +139,6 @@ describe('MeterProvider', () => {
         interval: Math.pow(2, 31) - 1,
         gracefulShutdown: false,
       });
-<<<<<<< HEAD
-      const sandbox = sinon.createSandbox();
-=======
->>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
       const shutdownStub = sandbox.stub(
         meterProvider.getMeter('meter1'),
         'shutdown'

@@ -352,11 +352,7 @@ describe('PrometheusExporter', () => {
       counter.bind({ counterKey1: 'labelValue2' }).add(20);
       counter.bind({ counterKey1: 'labelValue3' }).add(30);
 
-<<<<<<< HEAD
-      notifyOnGlobalShutdown(() => {
-=======
       removeEvent = notifyOnGlobalShutdown(() => {
->>>>>>> ddd84ff4a7f98786093ec8b6d20ef2bc9f900870
         http
           .get('http://localhost:9464/metrics', res => {
             res.on('data', chunk => {
