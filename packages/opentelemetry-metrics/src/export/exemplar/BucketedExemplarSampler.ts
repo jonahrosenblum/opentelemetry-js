@@ -19,13 +19,18 @@ import { RandomExemplarSampler } from './RandomExemplarSampler';
 
 export class BucketedExemplarSampler implements ExemplarSampler {
   _k: number;
-  private _sampleSet: RandomExemplarSampler[];
+  _statistical: boolean;
+  _sampleSet: RandomExemplarSampler[];
   _boundaries: number[];
 
-  constructor(k: number, boundaries: number[] = []) {
+  constructor(k: number, statistical = false, boundaries: number[] = []) {
     this._k = k;
+    this._statistical = statistical;
     this._boundaries = boundaries;
-    this._sampleSet = boundaries.map(_ => new RandomExemplarSampler(k)).concat([new RandomExemplarSampler(k)]);
+    this._sampleSet = Array.from(
+      { length: boundaries.length + 1 },
+      () => new RandomExemplarSampler(k, statistical)
+    );
   }
 
   sample(exemplar: Exemplar, bucketIndex?: number): void {
@@ -37,7 +42,10 @@ export class BucketedExemplarSampler implements ExemplarSampler {
 
   sampleSet(): Exemplar[] {
     // flatten an array of arrays into a single array
-    return Array.prototype.concat.apply([], this._sampleSet.map(sample => sample.sampleSet()));
+    return Array.prototype.concat.apply(
+      [],
+      this._sampleSet.map(sample => sample.sampleSet())
+    );
   }
 
   merge(set1: Exemplar[], set2: Exemplar[]): Exemplar[] {

@@ -20,13 +20,18 @@ export class RandomExemplarSampler implements ExemplarSampler {
   _k: number;
   _sampleSet: Exemplar[];
   _randCount: number;
+  _statistical: boolean;
 
-  constructor(k: number) {
+  constructor(k: number, statistical = false) {
     this._k = k;
+    this._statistical = statistical;
     this._randCount = 0;
     this._sampleSet = [];
   }
-
+  /**
+   * We sample a random subset of a stream using "Algorithm R":
+   * https://en.wikipedia.org/wiki/Reservoir_sampling#Simple_algorithm
+   */
   sample(exemplar: Exemplar): void {
     this._randCount += 1;
 
@@ -43,6 +48,11 @@ export class RandomExemplarSampler implements ExemplarSampler {
   }
 
   sampleSet(): Exemplar[] {
+    if (this._statistical) {
+      this._sampleSet.forEach(exemplar => {
+        exemplar.sampleCount = this._randCount / this._sampleSet.length;
+      });
+    }
     return this._sampleSet;
   }
 

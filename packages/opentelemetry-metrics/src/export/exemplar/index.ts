@@ -13,27 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Exemplar } from './Exemplar';
-
-/**
- * Base class for exemplar samplers.
- */
-export interface ExemplarSampler {
-  _k: number;
-  _statistical: boolean;
-
-  sample(exemplar: Exemplar, ...kwargs: any[]): void;
-
-  sampleSet(): Exemplar[];
-
-  merge(set1: Exemplar[], set2: Exemplar[]): Exemplar[];
-
-  reset(): void;
-}
-
-/**
- * This interface allows us to use the ExemplarSampler interface or any child class as an argument instead of needing to pass an object.
- */
-export interface ExemplarSamplerArg {
-  new (k: number, statistical: boolean, ...kwargs: any[]): ExemplarSampler;
-}
+export * from './Exemplar';
+export * from './ExemplarSampler';
+export * from './ExemplarManager';
+export * from './RandomExemplarSampler';
+export * from './MinMaxExemplarSampler';
+export * from './BucketedExemplarSampler';

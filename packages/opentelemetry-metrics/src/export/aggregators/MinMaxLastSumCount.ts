@@ -14,7 +14,17 @@
  * limitations under the License.
  */
 
-import { Point, AggregatorKind, DistributionAggregatorType, Distribution } from '../types';
+import {
+  Point,
+  AggregatorKind,
+  DistributionAggregatorType,
+  Distribution,
+} from '../types';
+import {
+  ExemplarManager,
+  MinMaxExemplarSampler,
+  RandomExemplarSampler,
+} from '../exemplar';
 import { HrTime } from '@opentelemetry/api';
 import { hrTime } from '@opentelemetry/core';
 
@@ -26,8 +36,9 @@ export class MinMaxLastSumCountAggregator
   public kind: AggregatorKind.DISTRIBUTION = AggregatorKind.DISTRIBUTION;
   private _distribution: Distribution;
   private _lastUpdateTime: HrTime = [0, 0];
+  private _exemplarManager: ExemplarManager;
 
-  constructor() {
+  constructor(exemplarCount = 0, statistical = false) {
     this._distribution = {
       min: Infinity,
       max: -Infinity,
@@ -35,15 +46,23 @@ export class MinMaxLastSumCountAggregator
       sum: 0,
       count: 0,
     };
+    this._exemplarManager = new ExemplarManager({
+      exemplarCount: exemplarCount,
+      statistical: statistical,
+      semanticExemplarSampler: MinMaxExemplarSampler,
+      statisticalExemplarSampler: RandomExemplarSampler,
+    });
   }
 
-  update(value: number): void {
+  update(value: number, droppedLabels?: string[]): void {
     this._distribution.count++;
     this._distribution.sum += value;
     this._distribution.last = value;
     this._distribution.min = Math.min(this._distribution.min, value);
     this._distribution.max = Math.max(this._distribution.max, value);
     this._lastUpdateTime = hrTime();
+
+    this._exemplarManager.sample(value, droppedLabels);
   }
 
   toPoint(): Point<Distribution> {

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ValueType } from '@opentelemetry/api';
+import { ValueType, HrTime } from '@opentelemetry/api';
 
 export class Exemplar {
   value: ValueType;
-  timestamp: number;
-  droppedLabels: Object | undefined;
+  timestamp: HrTime;
+  droppedLabels: Record<string, any> | undefined;
   spanId: string | undefined;
   traceId: string | undefined;
   sampleCount: number | undefined;
 
   constructor(
     value: ValueType,
-    timestamp: number,
-    droppedLabels: Object | undefined = undefined,
+    timestamp: HrTime,
+    droppedLabels: Record<string, any> | undefined = undefined,
     spanId: string | undefined = undefined,
     traceId: string | undefined = undefined,
     sampleCount: number | undefined = undefined

@@ -15,6 +15,11 @@
  */
 
 import { Point, Sum, AggregatorKind, SumAggregatorType } from '../types';
+import {
+  ExemplarManager,
+  MinMaxExemplarSampler,
+  RandomExemplarSampler,
+} from '../exemplar';
 import { HrTime } from '@opentelemetry/api';
 import { hrTime } from '@opentelemetry/core';
 
@@ -23,10 +28,21 @@ export class SumAggregator implements SumAggregatorType {
   public kind: AggregatorKind.SUM = AggregatorKind.SUM;
   private _current: number = 0;
   private _lastUpdateTime: HrTime = [0, 0];
+  private _exemplarManager: ExemplarManager;
 
-  update(value: number): void {
+  constructor(exemplarCount = 0, statistical = false) {
+    this._exemplarManager = new ExemplarManager({
+      exemplarCount: exemplarCount,
+      statistical: statistical,
+      semanticExemplarSampler: MinMaxExemplarSampler,
+      statisticalExemplarSampler: RandomExemplarSampler,
+    });
+  }
+
+  update(value: number, droppedLabels?: Record<string, any>): void {
     this._current += value;
     this._lastUpdateTime = hrTime();
+    this._exemplarManager.sample(value, droppedLabels);
   }
 
   toPoint(): Point<Sum> {

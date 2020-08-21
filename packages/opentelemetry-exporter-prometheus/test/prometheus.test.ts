@@ -31,12 +31,6 @@ import * as assert from 'assert';
 import * as http from 'http';
 import { PrometheusExporter } from '../src';
 
-function _cleanupGlobalShutdownListeners() {
-  if (typeof window === 'undefined') {
-    process.removeAllListeners('SIGTERM');
-  }
-}
-
 const mockedHrTime: HrTime = [1586347902211, 0];
 const mockedTimeMS = 1586347902211000;
 
@@ -212,7 +206,6 @@ describe('PrometheusExporter', () => {
     });
 
     afterEach(done => {
-      _cleanupGlobalShutdownListeners();
       exporter.shutdown(done);
       if (removeEvent) {
         removeEvent();

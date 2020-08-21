@@ -32,12 +32,6 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 import { BasicTracerProvider, Span } from '../src';
 
-function _cleanupGlobalShutdownListeners() {
-  if (typeof window === 'undefined') {
-    process.removeAllListeners('SIGTERM');
-  }
-}
-
 describe('BasicTracerProvider', () => {
   let sandbox: sinon.SinonSandbox;
   let removeEvent: Function | undefined;

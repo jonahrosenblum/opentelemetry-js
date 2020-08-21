@@ -17,7 +17,7 @@
 import { ValueType, HrTime, Labels } from '@opentelemetry/api';
 import { ExportResult, InstrumentationLibrary } from '@opentelemetry/core';
 import { Resource } from '@opentelemetry/resources';
-import { ExemplarSampler } from './exemplar/ExemplarSampler';
+import { ExemplarSamplerArg } from './exemplar';
 
 /** The kind of metric. */
 export enum MetricKind {
@@ -178,9 +178,12 @@ export interface Point<T extends PointValueType> {
   timestamp: HrTime;
 }
 
+/**
+ * ExemplarManagerConfig provides an interface for configuring a ExemplarManager.
+ */
 export interface ExemplarManagerConfig {
   exemplarCount: number;
-
-  semanticExemplar: ExemplarSampler;
-
+  semanticExemplarSampler: ExemplarSamplerArg;
+  statisticalExemplarSampler: ExemplarSamplerArg;
+  statistical: boolean;
 }

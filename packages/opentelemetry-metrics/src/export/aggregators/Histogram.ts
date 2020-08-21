@@ -20,6 +20,7 @@ import {
   Histogram,
   AggregatorKind,
 } from '../types';
+import { ExemplarManager, BucketedExemplarSampler } from '../exemplar';
 import { HrTime } from '@opentelemetry/api';
 import { hrTime } from '@opentelemetry/core';
 
@@ -32,8 +33,9 @@ export class HistogramAggregator implements HistogramAggregatorType {
   private _current: Histogram;
   private _lastUpdateTime: HrTime;
   private readonly _boundaries: number[];
+  private _exemplarManager: ExemplarManager;
 
-  constructor(boundaries: number[]) {
+  constructor(boundaries: number[], exemplarCount = 0, statistical = false) {
     if (boundaries === undefined || boundaries.length === 0) {
       throw new Error('HistogramAggregator should be created with boundaries.');
     }
@@ -42,9 +44,19 @@ export class HistogramAggregator implements HistogramAggregatorType {
     this._boundaries = boundaries.sort();
     this._current = this._newEmptyCheckpoint();
     this._lastUpdateTime = hrTime();
+
+    this._exemplarManager = new ExemplarManager(
+      {
+        exemplarCount: exemplarCount,
+        statistical: statistical,
+        semanticExemplarSampler: BucketedExemplarSampler,
+        statisticalExemplarSampler: BucketedExemplarSampler,
+      },
+      boundaries
+    );
   }
 
-  update(value: number): void {
+  update(value: number, droppedLabels?: string[]): void {
     this._current.count += 1;
     this._current.sum += value;
 
@@ -57,6 +69,8 @@ export class HistogramAggregator implements HistogramAggregatorType {
 
     // value is above all observed boundaries
     this._current.buckets.counts[this._boundaries.length] += 1;
+
+    this._exemplarManager.sample(value, droppedLabels);
   }
 
   toPoint(): Point<Histogram> {

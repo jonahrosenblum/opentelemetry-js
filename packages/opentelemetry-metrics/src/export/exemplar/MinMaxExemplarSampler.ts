@@ -19,10 +19,12 @@ import { ExemplarSampler } from './ExemplarSampler';
 export class MinMaxExemplarSampler implements ExemplarSampler {
   _k: number;
   _sampleSet: Exemplar[];
+  _statistical: boolean;
 
   constructor() {
-    // k must always be 2
+    // k must always be 2 and statisical must be false
     this._k = 2;
+    this._statistical = false;
     this._sampleSet = [];
   }
 
