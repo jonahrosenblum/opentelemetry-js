@@ -56,7 +56,7 @@ export class HistogramAggregator implements HistogramAggregatorType {
     );
   }
 
-  update(value: number, droppedLabels?: string[]): void {
+  update(value: number, droppedLabels?: Record<string, any>): void {
     this._current.count += 1;
     this._current.sum += value;
 

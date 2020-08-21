@@ -54,7 +54,7 @@ export class MinMaxLastSumCountAggregator
     });
   }
 
-  update(value: number, droppedLabels?: string[]): void {
+  update(value: number, droppedLabels?: Record<string, any>): void {
     this._distribution.count++;
     this._distribution.sum += value;
     this._distribution.last = value;

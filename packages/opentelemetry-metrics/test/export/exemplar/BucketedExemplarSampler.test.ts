@@ -34,7 +34,7 @@ describe('BucketedExemplarSampler', () => {
     Math.random = mathRandom;
   });
 
-  it('should sample randomly', () => {
+  it('should sample each bucket randomly', () => {
     const sampler = new BucketedExemplarSampler(1, true, [2, 4, 7]);
     const exemplar0 = new Exemplar(0, hrTime());
     const exemplar1 = new Exemplar(1, hrTime());

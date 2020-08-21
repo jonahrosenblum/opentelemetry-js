@@ -18,7 +18,7 @@ import { Exemplar, MinMaxExemplarSampler } from '../../../src/export/exemplar/';
 import { hrTime } from '@opentelemetry/core';
 
 describe('MinMaxExemplarSampler', () => {
-  it('should sample properly', () => {
+  it('should find min and max exemplars', () => {
     const sampler = new MinMaxExemplarSampler();
     const exemplar0 = new Exemplar(0, hrTime());
     const exemplar1 = new Exemplar(1, hrTime());
