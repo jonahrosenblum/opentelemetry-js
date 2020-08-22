@@ -19,6 +19,7 @@ import {
   BucketedExemplarSampler,
   ExemplarManager,
   Exemplar,
+  RandomExemplarSampler,
 } from '../../../src/export/exemplar/';
 import { hrTime } from '@opentelemetry/core';
 
@@ -36,6 +37,16 @@ describe('BucketedExemplarSampler', () => {
     Math.random = mathRandom;
   });
   describe('.sample() and .takeCheckpoint()', () => {
+    it('should do nothing if exemplarCount is 0', () => {
+      const manager = new ExemplarManager({
+        exemplarCount: 0,
+        semanticExemplarSampler: RandomExemplarSampler,
+        statisticalExemplarSampler: BucketedExemplarSampler,
+        statistical: true,
+      });
+      manager.sample(5);
+      assert.strictEqual(manager.takeCheckpoint().length, 0);
+    });
     it('should sample statistical BucketedExemplarSampler properly', () => {
       const boundaries = [1, 2];
       const manager = new ExemplarManager(

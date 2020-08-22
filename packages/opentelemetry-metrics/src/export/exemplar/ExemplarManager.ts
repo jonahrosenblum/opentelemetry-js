@@ -17,8 +17,13 @@
 import { Exemplar } from './Exemplar';
 import { ExemplarSampler } from './ExemplarSampler';
 import { ExemplarManagerConfig } from '../types';
-import { ValueType } from '@opentelemetry/api';
-import { hrTime } from '@opentelemetry/core';
+import {
+  ValueType,
+  context,
+  SpanContext,
+  TraceFlags,
+} from '@opentelemetry/api';
+import { hrTime, getActiveSpan } from '@opentelemetry/core';
 
 export class ExemplarManager {
   private _exemplarCount: number;
@@ -48,17 +53,22 @@ export class ExemplarManager {
     droppedLabels?: Record<string, any>,
     ...largs: any[]
   ): void {
-    // TODO: insert logic for determining if sampling should happen for semantic exemplars here
-    // for now, default to false (this is a portion I was not able to figure out in the time I had)
-    const isSample = false;
+    // TODO: insert better logic for determining if sampling should happen for semantic exemplars here
+    // (this is a portion I was not able to fully figure out in the time I had)
+    const ctxt: SpanContext | undefined = getActiveSpan(
+      context.active()
+    )?.context();
+    const isSampled: boolean = ctxt?.traceFlags === TraceFlags.SAMPLED;
 
-    if (this._recordExemplars && (isSample || this._statistical)) {
-      // TODO: when pulling this info from the current context is figured out, replace this!
-      const spanId = 'placeholder';
-      const traceId = 'placeholder';
-
+    if (this._recordExemplars && (isSampled || this._statistical)) {
       this._exemplarSampler.sample(
-        new Exemplar(value, hrTime(), droppedLabels, spanId, traceId),
+        new Exemplar(
+          value,
+          hrTime(),
+          droppedLabels,
+          ctxt?.spanId,
+          ctxt?.traceId
+        ),
         largs
       );
     }
