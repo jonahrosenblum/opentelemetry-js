@@ -22,7 +22,7 @@ export interface ExemplarSampler {
   _k: number;
   _statistical: boolean;
 
-  sample(exemplar: Exemplar, ...kwargs: any[]): void;
+  sample(exemplar: Exemplar, ...largs: any[]): void;
 
   sampleSet(): Exemplar[];
 
@@ -35,5 +35,5 @@ export interface ExemplarSampler {
  * This interface allows us to use the ExemplarSampler interface or any child class as an argument instead of needing to pass an object.
  */
 export interface ExemplarSamplerArg {
-  new (k: number, statistical: boolean, ...kwargs: any[]): ExemplarSampler;
+  new (k: number, statistical: boolean, ...largs: any[]): ExemplarSampler;
 }

@@ -26,7 +26,7 @@ export class ExemplarManager {
   private _statistical: boolean;
   private _exemplarSampler: ExemplarSampler;
 
-  constructor(config: ExemplarManagerConfig, ...kwargs: any[]) {
+  constructor(config: ExemplarManagerConfig, ...largs: any[]) {
     this._exemplarCount = config.exemplarCount | 0;
     this._recordExemplars = this._exemplarCount > 0;
     this._statistical = config.statistical;
@@ -34,19 +34,19 @@ export class ExemplarManager {
       ? new config.statisticalExemplarSampler(
           this._exemplarCount,
           this._statistical,
-          kwargs
+          largs
         )
       : new config.semanticExemplarSampler(
           this._exemplarCount,
           this._statistical,
-          kwargs
+          largs
         );
   }
 
   sample(
     value: ValueType,
     droppedLabels?: Record<string, any>,
-    ...kwargs: any[]
+    ...largs: any[]
   ): void {
     // TODO: insert logic for determining if sampling should happen for semantic exemplars here
     // for now, default to false (this is a portion I was not able to figure out in the time I had)
@@ -59,7 +59,7 @@ export class ExemplarManager {
 
       this._exemplarSampler.sample(
         new Exemplar(value, hrTime(), droppedLabels, spanId, traceId),
-        kwargs
+        largs
       );
     }
   }
